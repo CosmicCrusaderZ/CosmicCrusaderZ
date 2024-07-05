@@ -254,8 +254,8 @@
                 row.some((value, dx) =>
                     value !== 0 &&
                     (board[currentPiece.y + dy] === undefined ||
-                        board[currentPiece.y + dy][currentPiece.x + dx] === undefined ||
-                        board[currentPiece.y + dy][currentPiece.x + dx] !== 0)
+                     board[currentPiece.y + dy][currentPiece.x + dx] === undefined ||
+                     board[currentPiece.y + dy][currentPiece.x + dx] !== 0)
                 )
             );
         }
@@ -405,11 +405,13 @@
             adjustCanvasSize();
         });
 
+        // Mobile controls
         document.getElementById('left-button').addEventListener('click', () => handleKeyPress('ArrowLeft'));
         document.getElementById('right-button').addEventListener('click', () => handleKeyPress('ArrowRight'));
         document.getElementById('down-button').addEventListener('click', () => handleKeyPress('ArrowDown'));
         document.getElementById('rotate-button').addEventListener('click', () => handleKeyPress('ArrowUp'));
 
+        // Adjust canvas size
         function adjustCanvasSize() {
             const container = document.getElementById('game-container');
             const gameBoard = document.getElementById('game-board');
