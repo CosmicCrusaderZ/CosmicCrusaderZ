@@ -17,6 +17,14 @@
         }
         #game-container {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #device-selection {
+            margin-bottom: 20px;
+        }
+        #game-area {
+            display: flex;
             gap: 20px;
         }
         #game-board {
@@ -37,7 +45,7 @@
         #score, #level, #lines {
             font-size: 18px;
         }
-        #start-button {
+        #start-button, #reset-button {
             padding: 10px 20px;
             font-size: 16px;
             background-color: #4a4a4a;
@@ -46,21 +54,51 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        #start-button:hover {
+        #start-button:hover, #reset-button:hover {
             background-color: #5a5a5a;
+        }
+        #mobile-controls {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .control-button {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            background-color: #4a4a4a;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <canvas id="game-board" width="300" height="600"></canvas>
-        <div id="side-panel">
-            <div>Next Piece:</div>
-            <canvas id="next-piece" width="100" height="100"></canvas>
-            <div id="score">Score: 0</div>
-            <div id="level">Level: 1</div>
-            <div id="lines">Lines: 0</div>
-            <button id="start-button">Start Game</button>
+        <div id="device-selection">
+            <button id="pc-button">PC</button>
+            <button id="mobile-button">Mobile</button>
+        </div>
+        <div id="game-area" style="display: none;">
+            <canvas id="game-board" width="300" height="600"></canvas>
+            <div id="side-panel">
+                <div>Next Piece:</div>
+                <canvas id="next-piece" width="100" height="100"></canvas>
+                <div id="score">Score: 0</div>
+                <div id="level">Level: 1</div>
+                <div id="lines">Lines: 0</div>
+                <button id="start-button">Start Game</button>
+                <button id="reset-button">Reset Game</button>
+            </div>
+        </div>
+        <div id="mobile-controls">
+            <button class="control-button" id="left-button">←</button>
+            <button class="control-button" id="rotate-button">↻</button>
+            <button class="control-button" id="right-button">→</button>
+            <button class="control-button" id="down-button">↓</button>
         </div>
     </div>
 
@@ -73,6 +111,11 @@
         const levelElement = document.getElementById('level');
         const linesElement = document.getElementById('lines');
         const startButton = document.getElementById('start-button');
+        const resetButton = document.getElementById('reset-button');
+        const pcButton = document.getElementById('pc-button');
+        const mobileButton = document.getElementById('mobile-button');
+        const gameArea = document.getElementById('game-area');
+        const mobileControls = document.getElementById('mobile-controls');
 
         const ROWS = 20;
         const COLS = 10;
@@ -92,6 +135,7 @@
         let lastTime = 0;
         let currentPiece;
         let nextPiece;
+        let isGameActive = false;
 
         const SHAPES = [
             [[1, 1, 1, 1]],
@@ -227,6 +271,7 @@
 
         function gameOver() {
             cancelAnimationFrame(gameLoop);
+            isGameActive = false;
             ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#fff';
@@ -276,30 +321,67 @@
             drawNextPiece();
             if (gameLoop) cancelAnimationFrame(gameLoop);
             lastTime = 0;
+            isGameActive = true;
             gameLoop = requestAnimationFrame(update);
             startButton.disabled = true;
         }
 
-        document.addEventListener('keydown', event => {
-            if (startButton.disabled) {
-                switch (event.keyCode) {
-                    case 37: // Left arrow
+        function resetGame() {
+            if (gameLoop) cancelAnimationFrame(gameLoop);
+            board = createBoard();
+            score = 0;
+            level = 1;
+            lines = 0;
+            dropInterval = 1000;
+            updateScore();
+            isGameActive = false;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            startButton.disabled = false;
+        }
+
+        function handleKeyPress(key) {
+            if (isGameActive) {
+                switch (key) {
+                    case 'ArrowLeft':
                         movePiece(-1, 0);
                         break;
-                    case 39: // Right arrow
+                    case 'ArrowRight':
                         movePiece(1, 0);
                         break;
-                    case 40: // Down arrow
+                    case 'ArrowDown':
                         movePiece(0, 1);
                         break;
-                    case 38: // Up arrow
+                    case 'ArrowUp':
                         rotatePiece();
                         break;
                 }
             }
+        }
+
+        document.addEventListener('keydown', event => {
+            handleKeyPress(event.key);
         });
 
         startButton.addEventListener('click', startGame);
+        resetButton.addEventListener('click', resetGame);
+
+        pcButton.addEventListener('click', () => {
+            gameArea.style.display = 'flex';
+            mobileControls.style.display = 'none';
+            document.getElementById('device-selection').style.display = 'none';
+        });
+
+        mobileButton.addEventListener('click', () => {
+            gameArea.style.display = 'flex';
+            mobileControls.style.display = 'flex';
+            document.getElementById('device-selection').style.display = 'none';
+        });
+
+        // Mobile controls
+        document.getElementById('left-button').addEventListener('click', () => handleKeyPress('ArrowLeft'));
+        document.getElementById('right-button').addEventListener('click', () => handleKeyPress('ArrowRight'));
+        document.getElementById('down-button').addEventListener('click', () => handleKeyPress('ArrowDown'));
+        document.getElementById('rotate-button').addEventListener('click', () => handleKeyPress('ArrowUp'));
     </script>
 </body>
 </html>
