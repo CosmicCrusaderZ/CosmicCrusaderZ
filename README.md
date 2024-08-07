@@ -1,7 +1,6 @@
 - 👋 Hi, I’m @CosmicCrusaderZ
 - 👀 I’m interested in html + css
-- 🌱 I’m currently learning javascript
-- 📫 How to reach me ...
+- 🌱 I’m currently learning javascrip
 - 😄 Pronouns: he/him
 - ⚡ Fun fact: yes
 
